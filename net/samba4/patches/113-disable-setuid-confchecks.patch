@@ -1,0 +1,12 @@
+diff -Naur a/source3/lib/util_sec.c b/source3/lib/util_sec.c
+--- a/source3/lib/util_sec.c	2023-01-09 18:46:35.000000000 +0700
++++ b/source3/lib/util_sec.c	2023-01-09 22:52:40.672882500 +0700
+@@ -555,7 +555,7 @@
+ 
+ int main(void)
+ {
+-        if (getuid() != 0) {
++        if (1 || getuid() != 0) {
+ #if (defined(AIX) && defined(USE_SETREUID))
+ 		/* setreuid is badly broken on AIX 4.1, we avoid it completely */
+                 fprintf(stderr,"avoiding possibly broken setreuid\n");

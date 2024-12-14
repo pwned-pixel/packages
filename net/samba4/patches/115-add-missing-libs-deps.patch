@@ -1,0 +1,33 @@
+diff -Naur a/lib/util/wscript_build b/lib/util/wscript_build
+--- a/lib/util/wscript_build	2023-01-09 18:46:35.000000000 +0700
++++ b/lib/util/wscript_build	2023-01-09 22:58:11.000663600 +0700
+@@ -243,7 +243,7 @@
+ 
+     bld.SAMBA_LIBRARY('samba-modules',
+                       source='modules.c',
+-                      deps='samba-errors samba-util',
++                      deps='samba-errors samba-util samba-debug',
+                       local_include=False,
+                       private_library=True)
+ 
+diff -Naur a/source3/wscript_build b/source3/wscript_build
+--- a/source3/wscript_build	2023-01-09 18:46:35.000000000 +0700
++++ b/source3/wscript_build	2023-01-09 22:58:51.040806900 +0700
+@@ -188,7 +188,7 @@
+                           passdb/pdb_ldap_schema.c
+                           passdb/pdb_ldap_util.c
+                           ''',
+-                   deps='smbldap secrets3',
++                   deps='smbldap secrets3 replace',
+                    allow_undefined_symbols=True,
+                    enabled=bld.CONFIG_SET('HAVE_LDAP'),
+                    private_library=True)
+@@ -481,7 +481,7 @@
+ 
+ bld.SAMBA3_LIBRARY('smbldap',
+                     source='lib/smbldap.c',
+-                    deps='ldap lber samba-util smbconf',
++                    deps='ldap lber samba-util smbconf replace samba-debug samba-security',
+                     enabled=bld.CONFIG_SET("HAVE_LDAP"),
+                     private_library=False,
+                     abi_directory='lib/ABI',

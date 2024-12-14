@@ -1,0 +1,12 @@
+diff -Naur a/source3/include/libsmbclient.h b/source3/include/libsmbclient.h
+--- a/source3/include/libsmbclient.h	2023-01-09 22:31:55.906864800 +0700
++++ b/source3/include/libsmbclient.h	2023-01-09 22:32:18.826324600 +0700
+@@ -81,6 +81,8 @@
+ #include <time.h>
+ #include <utime.h>
+ 
++typedef int smbc_off_t_should_be_at_least_64bits_use_LFS_CFLAGS[sizeof(off_t)-7];
++
+ #define SMBC_BASE_FD        10000 /* smallest file descriptor returned */
+ 
+ #define SMBC_WORKGROUP      1
