@@ -25,6 +25,34 @@ validate_ntp_section() {
 }
 
 start_ntpd_instance() {
+
+	local manual
+
+	config_load "system"
+	config_get_bool manual "ntp" manual "1"
+
+	if [ "$manual" = "1" ]; then
+
+		trunc
+		emit "driftfile /var/lib/ntp/ntp.drift\n"
+
+		trunc
+		cat /etc/ntpd.d/ntpd.conf >> $config_file
+
+		mkdir -p /var/lib/ntp
+		chown -R ntp:ntp /var/lib/ntp
+
+		procd_open_instance
+		procd_set_param command $PROG -g -u ntp:ntp -p /var/run/ntpd.pid -n \
+			-c $config_file
+		procd_close_instance
+
+		procd_open_instance
+		procd_set_param command $HOTPLUG_HELPER
+		procd_close_instance
+
+	else
+
 	local intf i
 
 	[ "$2" = 0 ] || {
@@ -100,6 +128,8 @@ start_ntpd_instance() {
 	procd_open_instance
 	procd_set_param command $HOTPLUG_HELPER
 	procd_close_instance
+
+	fi
 }
 
 start_service() {
