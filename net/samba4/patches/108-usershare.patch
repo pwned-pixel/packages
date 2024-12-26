@@ -1,0 +1,34 @@
+diff -Naur a/docs-xml/smbdotconf/misc/usersharemaxshares.xml b/docs-xml/smbdotconf/misc/usersharemaxshares.xml
+--- a/docs-xml/smbdotconf/misc/usersharemaxshares.xml	2023-01-09 18:46:35.000000000 +0700
++++ b/docs-xml/smbdotconf/misc/usersharemaxshares.xml	2023-01-09 22:37:53.713140100 +0700
+@@ -9,5 +9,5 @@
+ 	</para>
+ 
+ </description>
+-<value type="default">0</value>
++<value type="default">100</value>
+ </samba:parameter>
+diff -Naur a/lib/param/loadparm.c b/lib/param/loadparm.c
+--- a/lib/param/loadparm.c	2023-01-09 18:46:35.000000000 +0700
++++ b/lib/param/loadparm.c	2023-01-09 22:38:35.002106100 +0700
+@@ -3055,6 +3055,8 @@
+ 	lpcfg_do_global_parameter(lp_ctx, "nmbd bind explicit broadcast", "yes");
+ 
+ 	lpcfg_do_global_parameter(lp_ctx, "init logon delay", "100");
++	
++	lpcfg_do_global_parameter(lp_ctx, "usershare max shares", "100");
+ 
+ 	lpcfg_do_global_parameter(lp_ctx, "usershare owner only", "yes");
+ 
+diff -Naur a/source3/param/loadparm.c b/source3/param/loadparm.c
+--- a/source3/param/loadparm.c	2023-01-09 18:46:35.000000000 +0700
++++ b/source3/param/loadparm.c	2023-01-09 22:38:58.135176600 +0700
+@@ -855,7 +855,7 @@
+ 	lpcfg_string_set(Globals.ctx, &Globals.usershare_path, s);
+ 	TALLOC_FREE(s);
+ 	lpcfg_string_set(Globals.ctx, &Globals.usershare_template_share, "");
+-	Globals.usershare_max_shares = 0;
++	Globals.usershare_max_shares = 100;
+ 	/* By default disallow sharing of directories not owned by the sharer. */
+ 	Globals.usershare_owner_only = true;
+ 	/* By default disallow guest access to usershares. */

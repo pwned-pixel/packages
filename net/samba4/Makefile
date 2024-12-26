@@ -2,19 +2,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=samba
-PKG_VERSION:=4.18.8
+PKG_VERSION:=4.22.0
 PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:= \
-		https://ftp.gwdg.de/pub/samba/stable/ \
-		https://ftp.heanet.ie/mirrors/ftp.samba.org/stable/ \
-		https://ftp.riken.jp/net/samba/samba/stable/ \
-		http://www.nic.funet.fi/index/samba/pub/samba/stable/ \
-		http://samba.mirror.bit.nl/samba/ftp/stable/ \
-		https://download.samba.org/pub/samba/stable/
-PKG_HASH:=4fb87bceaeb01d832a59046c197a044b7e8e8000581548b5d577a6cda03344d1
-
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=https://github.com/samba-team/samba.git
+PKG_MIRROR_HASH:=skip
+PKG_SOURCE_VERSION:=2065f006560ad6a7857e49ceb326bc70ce6d60b6
 PKG_BUILD_FLAGS:=gc-sections
 
 PKG_LICENSE:=GPL-3.0-only
@@ -130,8 +124,13 @@ endef
 
 TARGET_CFLAGS += $(FPIC)
 TARGET_LDFLAGS += -Wl,--as-needed
+
+ifdef CONFIG_KERNEL_IO_URING
+	TARGET_LDFLAGS += -L$(STAGING_DIR)/usr/lib -luring
+endif
+
 # dont mess with sambas private rpath!
-RSTRIP:=:
+RSTRIP:=do_strip() { find $$$$* -type f -executable | xargs -d '\n' $(TARGET_CROSS)strip --strip-unneeded || true; }; do_strip
 
 CONFIGURE_VARS += \
 	CPP="$(TARGET_CROSS)cpp" \
@@ -219,11 +218,11 @@ HOST_CONFIGURE_ARGS += --disable-avahi --without-quotas --without-acl-support --
 
 # Optional AES-NI support - https://lists.samba.org/archive/samba-technical/2017-September/122738.html
 # Support for Nettle wasn't comitted
-ifdef CONFIG_TARGET_x86_64
-	CONFIGURE_ARGS += --accel-aes=intelaesni
-else
-	CONFIGURE_ARGS += --accel-aes=none
-endif
+#ifdef CONFIG_TARGET_x86_64
+#	CONFIGURE_ARGS += --accel-aes=intelaesni
+#else
+#	CONFIGURE_ARGS += --accel-aes=none
+#endif
 
 CONFIGURE_ARGS += \
 		--with-lockdir=/var/lock \
@@ -244,7 +243,7 @@ else
 endif
 
 ifeq ($(CONFIG_SAMBA4_SERVER_AD_DC),y)
-	CONFIGURE_ARGS += --without-winbind --without-ldb-lmdb --with-acl-support
+	CONFIGURE_ARGS += --without-ldb-lmdb --with-acl-support
 else
 	CONFIGURE_ARGS += --without-winbind --without-ads --without-ldap --without-ldb-lmdb --without-ad-dc \
 		--without-json --without-libarchive --disable-python --nopyc --nopyo --without-acl-support
@@ -305,9 +304,9 @@ ifdef CONFIG_KERNEL_IO_URING
 	SYSTEM_BUNDLED_LIBS:=,uring
 endif
 ifeq ($(CONFIG_SAMBA4_SERVER_AD_DC),y)
-	CONFIGURE_ARGS += --bundled-libraries=NONE,$(SYSTEM_PRIVATE_BUNDLED_LIBS)$(SYSTEM_BUNDLED_LIBS),$(PYTHON_BUNDLED_LIBS)
+	CONFIGURE_ARGS += --bundled-libraries=$(SYSTEM_PRIVATE_BUNDLED_LIBS)$(SYSTEM_BUNDLED_LIBS),$(PYTHON_BUNDLED_LIBS)
 else
-	CONFIGURE_ARGS += --bundled-libraries=NONE,$(SYSTEM_PRIVATE_BUNDLED_LIBS)$(SYSTEM_BUNDLED_LIBS)
+	CONFIGURE_ARGS += --bundled-libraries=$(SYSTEM_PRIVATE_BUNDLED_LIBS)$(SYSTEM_BUNDLED_LIBS)
 endif
 CONFIGURE_ARGS += --private-libraries=$(SYSTEM_PRIVATE_BUNDLED_LIBS)
 
@@ -334,8 +333,9 @@ define Host/Prepare
 	$(SED) 's,gnutls_version =.*,gnutls_version = gnutls_min_required_version,g' $(HOST_BUILD_DIR)/wscript_configure_system_gnutls
 	$(SED) 's,gnutls_version_str.*,gnutls_version_str = "3.7.7",g' $(HOST_BUILD_DIR)/wscript_configure_system_gnutls
 	$(SED) 's,(gnutls_version > .*,(parse_version(gnutls_version) > parse_version("3.6.10")):,g' $(HOST_BUILD_DIR)/wscript_configure_system_gnutls
-	$(SED) 's,(gnutls_version < .*,(parse_version(gnutls_version) < parse_version("3.5.2")):,g' $(HOST_BUILD_DIR)/wscript_configure_system_gnutls
+	$(SED) 's,(gnutls_version >= .*,(parse_version(gnutls_version) >= parse_version("3.7.2")):,g' $(HOST_BUILD_DIR)/wscript_configure_system_gnutls
 endef
+
 define Host/Compile
 	(cd $(HOST_BUILD_DIR); \
 		./buildtools/bin/waf build \
@@ -376,6 +376,8 @@ endef
 
 # Build via "waf install", avoid the make wrapper. (Samba logic is 'waf install' = build + install)
 define Build/Compile
+	$(LN) $(STAGING_DIR_HOSTPKG)/bin/compile_et_samba $(PKG_BUILD_DIR)/bin/compile_et
+	$(LN) $(STAGING_DIR_HOSTPKG)/bin/asn1_compile_samba $(PKG_BUILD_DIR)/bin/asn1_compile
 	(cd $(PKG_BUILD_DIR); \
 		./buildtools/bin/waf install \
 		--jobs=$(shell nproc) \
@@ -436,6 +438,9 @@ ifeq ($(CONFIG_SAMBA4_SERVER_AD_DC),y)
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/{samba-tool,ntlm_auth,oLschema2ldif} $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/{sharesec,smbcacls} $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{samba,samba-gpupdate,samba_dnsupdate,samba_kcc,samba_spnupdate,samba_upgradedns,samba_downgrade_db} $(1)/usr/sbin/
+ifeq ($(CONFIG_SAMBA4_SERVER_AD_DC),y)
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/winbindd $(1)/usr/sbin/
+endif
 endif
 	$(INSTALL_DIR) $(1)/etc/config $(1)/etc/samba $(1)/etc/init.d
 	$(INSTALL_CONF) ./files/samba.config $(1)/etc/config/samba4

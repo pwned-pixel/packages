@@ -1,0 +1,12 @@
+diff -Naur a/third_party/uid_wrapper/uid_wrapper.c b/third_party/uid_wrapper/uid_wrapper.c
+--- a/third_party/uid_wrapper/uid_wrapper.c	2023-01-20 18:20:25.000000000 +0700
++++ b/third_party/uid_wrapper/uid_wrapper.c	2023-01-21 04:47:47.425299400 +0700
+@@ -687,7 +687,7 @@
+ 	uwrap_bind_symbol_libc(setresgid);
+ #endif
+ #ifdef HAVE_GETRESGID
+-	uwrap_bind_symbol_libc(setresgid);
++	uwrap_bind_symbol_libc(getresgid);
+ #endif
+ 	uwrap_bind_symbol_libc(getegid);
+ 	uwrap_bind_symbol_libc(getgroups);
