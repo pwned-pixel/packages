@@ -1,0 +1,12 @@
+diff -Naur a/lib/replace/replace.h b/lib/replace/replace.h
+--- a/lib/replace/replace.h	2023-01-09 18:46:35.000000000 +0700
++++ b/lib/replace/replace.h	2023-01-09 22:51:10.521453400 +0700
+@@ -815,7 +815,7 @@
+ /**
+  * Zero a structure.
+  */
+-#define ZERO_STRUCT(x) memset_s((char *)&(x), sizeof(x), 0, sizeof(x))
++#define ZERO_STRUCT(x) explicit_bzero((char *)&(x), sizeof(x))
+ 
+ /**
+  * Zero a structure given a pointer to the structure.
