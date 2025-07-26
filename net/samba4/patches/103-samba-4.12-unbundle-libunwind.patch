@@ -1,6 +1,7 @@
---- a/lib/util/wscript_configure
-+++ b/lib/util/wscript_configure
-@@ -12,17 +12,17 @@ conf.CHECK_FUNCS_IN('backtrace backtrace
+diff -Naur a/lib/util/wscript_configure b/lib/util/wscript_configure
+--- a/lib/util/wscript_configure	2023-01-09 18:46:35.000000000 +0700
++++ b/lib/util/wscript_configure	2023-01-09 22:26:40.354411600 +0700
+@@ -12,17 +12,17 @@
  conf.CHECK_HEADERS('execinfo.h')
  
  conf.SET_TARGET_TYPE('LIBUNWIND', 'EMPTY')

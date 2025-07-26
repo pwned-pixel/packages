@@ -1,0 +1,27 @@
+diff -Naur a/lib/tevent/testsuite.c b/lib/tevent/testsuite.c
+--- a/lib/tevent/testsuite.c	2023-01-09 22:33:50.481088900 +0700
++++ b/lib/tevent/testsuite.c	2023-01-09 22:34:33.690174500 +0700
+@@ -36,6 +36,10 @@
+ #include "system/threads.h"
+ #include <assert.h>
+ #endif
++#include <limits.h>
++#ifndef PIPE_BUF /* eg hurd does not define it */
++# define PIPE_BUF 512 /* a safe bet */
++#endif
+ 
+ static int fde_count;
+ 
+diff -Naur a/lib/util/tests/tfork.c b/lib/util/tests/tfork.c
+--- a/lib/util/tests/tfork.c	2023-01-09 18:46:35.000000000 +0700
++++ b/lib/util/tests/tfork.c	2023-01-09 22:34:58.161784300 +0700
+@@ -33,6 +33,9 @@
+ #ifdef HAVE_PTHREAD
+ #include <pthread.h>
+ #endif
++#ifndef SA_NOCLDWAIT
++#define SA_NOCLDWAIT 0
++#endif
+ 
+ static bool test_tfork_simple(struct torture_context *tctx)
+ {

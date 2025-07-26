@@ -1,6 +1,7 @@
---- a/source4/lib/messaging/messaging.c
-+++ b/source4/lib/messaging/messaging.c
-@@ -537,7 +537,7 @@ static struct imessaging_context *imessa
+diff -Naur a/source4/lib/messaging/messaging.c b/source4/lib/messaging/messaging.c
+--- a/source4/lib/messaging/messaging.c	2023-01-09 22:16:51.362298400 +0700
++++ b/source4/lib/messaging/messaging.c	2023-01-09 22:17:18.881821400 +0700
+@@ -525,7 +525,7 @@
  		goto fail;
  	}
  

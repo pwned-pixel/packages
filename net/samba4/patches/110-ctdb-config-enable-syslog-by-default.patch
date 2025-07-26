@@ -1,0 +1,16 @@
+diff -Naur a/ctdb/config/ctdb.conf b/ctdb/config/ctdb.conf
+--- a/ctdb/config/ctdb.conf	2023-01-09 18:46:35.000000000 +0700
++++ b/ctdb/config/ctdb.conf	2023-01-09 22:48:33.113046500 +0700
+@@ -5,10 +5,10 @@
+ 
+ [logging]
+ 	# Enable logging to syslog
+-	# location = syslog
++	location = syslog
+ 
+ 	# Default log level
+-	# log level = NOTICE
++	log level = NOTICE
+ 
+ [cluster]
+ 	# Shared cluster lock file to avoid split brain.  Daemon
