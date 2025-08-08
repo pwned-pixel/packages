@@ -32,6 +32,8 @@ endef
 
 CONFIGURE_ARGS += --disable-emacs
 
+EXTRA_CFLAGS += -std=c17
+
 define Package/ccrypt/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/ccrypt $(1)/usr/bin/
