@@ -150,62 +150,42 @@ define Build/InstallDev
 endef
 
 define Package/ntfs-3g/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/ntfs-3g $(1)/usr/bin/
-	$(if $(CONFIG_PACKAGE_NTFS-3G_HAS_PROBE),$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/ntfs-3g.probe $(1)/usr/bin/,)
+	#$(INSTALL_DIR) $(1)/usr/bin
+	rm -f $(PKG_INSTALL_DIR)/usr/bin/ntfs-3g
+	rm -f $(PKG_INSTALL_DIR)/usr/bin/ntfs-3g.probe
+	#$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/ntfs-3g $(1)/usr/bin/
+	#$(if $(CONFIG_PACKAGE_NTFS-3G_HAS_PROBE),$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/ntfs-3g.probe $(1)/usr/bin/,)
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libntfs-3g.so.* $(1)/usr/lib/
-	$(INSTALL_DIR) $(1)/sbin
-	$(LN) ../usr/bin/ntfs-3g $(1)/sbin/mount.ntfs-3g
-endef
-
-define Package/ntfs-3g/postinst
-#!/bin/sh
-FILE="$${IPKG_INSTROOT}/etc/filesystems"
-ID="ntfs-3g"
-
-if ! [ -f '/etc/filesystems' ]; then
-	echo "Create '$$FILE'."
-	touch "$$FILE"
-fi
-
-if ! grep -q -e '^ntfs-3g$$' "$$FILE"; then
-	echo "Add '$$ID' to known filesystems."
-	echo "$$ID" >> "$$FILE"
-fi
-
-endef
-
-define Package/ntfs-3g-low/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/lowntfs-3g $(1)/usr/bin/
-	$(INSTALL_DIR) $(1)/sbin
-	$(LN) ../usr/bin/lowntfs-3g $(1)/sbin/mount.lowntfs-3g
-endef
-
-define Package/ntfs-3g-low/postinst
-#!/bin/sh
-FILE="$${IPKG_INSTROOT}/etc/filesystems"
-ID="lowntfs-3g"
-
-if ! [ -f '/etc/filesystems' ]; then
-	echo "Create '$$FILE'."
-	touch "$$FILE"
-fi
-
-if ! grep -q -e '^ntfs-3g$$' "$$FILE"; then
-	echo "Add '$$ID' to known filesystems."
-	echo "$$ID" >> "$$FILE"
-fi
-
+	#$(INSTALL_DIR) $(1)/sbin
+	#$(LN) ../usr/bin/ntfs-3g $(1)/sbin/mount.ntfs-3g
 endef
 
 define Package/ntfs-3g-utils/install
 	rm -f $(PKG_INSTALL_DIR)/usr/sbin/mkfs.ntfs
-	$(INSTALL_DIR) $(1)/usr/{bin,sbin}
+	#$(INSTALL_DIR) $(1)/usr/{bin,sbin}
+	$(INSTALL_DIR) $(1)/usr/bin
+	rm -f $(PKG_INSTALL_DIR)/usr/bin/ntfscat
+	rm -f $(PKG_INSTALL_DIR)/usr/bin/ntfscmp
+	rm -f $(PKG_INSTALL_DIR)/usr/bin/ntfsrecover
+	rm -f $(PKG_INSTALL_DIR)/usr/bin/ntfstruncate
+	rm -f $(PKG_INSTALL_DIR)/usr/bin/ntfswipe
+	rm -f $(PKG_INSTALL_DIR)/usr/bin/ntfscluster
+	rm -f $(PKG_INSTALL_DIR)/usr/bin/ntfsls
+	rm -f $(PKG_INSTALL_DIR)/usr/bin/ntfssecaudit
+	rm -f $(PKG_INSTALL_DIR)/usr/bin/ntfsusermap
+	rm -f $(PKG_INSTALL_DIR)/usr/sbin/ntfsclone
+	rm -f $(PKG_INSTALL_DIR)/usr/sbin/ntfscp
+	rm -f $(PKG_INSTALL_DIR)/usr/sbin/ntfslabel
+	rm -f $(PKG_INSTALL_DIR)/usr/sbin/ntfsresize
+	rm -f $(PKG_INSTALL_DIR)/usr/sbin/ntfsundelete
+	rm -f $(PKG_INSTALL_DIR)/usr/bin/ntfs-3g
+	rm -f $(PKG_INSTALL_DIR)/sbin/mount.ntfs-3g
+	rm -f $(PKG_INSTALL_DIR)/usr/bin/ntfs-3g.probe
+	#rm -f $(PKG_INSTALL_DIR)/usr/sbin/mkfs.ntfs
 	$(FIND) $(PKG_INSTALL_DIR)/usr/bin/ -type f ! -regex '.*[^/]*ntfs-3g[^/]*' -exec $(INSTALL_BIN) {} $(1)/usr/bin/ \;
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/* $(1)/usr/sbin/
-	$(LN) mkntfs $(1)/usr/sbin/mkfs.ntfs
+	#$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/* $(1)/usr/sbin/
+	#$(LN) mkntfs $(1)/usr/sbin/mkfs.ntfs
 endef
 
 $(eval $(call BuildPackage,ntfs-3g))
